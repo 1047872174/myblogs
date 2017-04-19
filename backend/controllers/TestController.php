@@ -34,6 +34,6 @@ class TestController extends Controller
         foreach ($t as $k=>$v){
             var_dump($k);
         }
-        //var_dump($t);
+        var_dump($t);
     }
 }
