@@ -55,12 +55,12 @@ class Tag extends \yii\db\ActiveRecord
     /**
      * 新增标签
      */
-    public function addTag($tags){
+    public static function addTag($tags){
         if (empty($tags)) return ;
-        $tag = Tag::find()->where(['in','name',$tags])->indexBy('name')->all();
+        $tag = Tag::find()->where(['in','name',$tags])->all();
         $different = array_diff($tags,$tag);//array_diff()计算数组的差集
-        $intersect = array_intersect($tags,$tag);//array_intersect()计算数组的交集
-        if (!$different){
+        //$intersect = array_intersect($tags,$tag);//array_intersect()计算数组的交集
+        if (!empty($different)){
             foreach ($different as $name){
                 $Tag = new Tag();
                 $Tag->name = $name;
@@ -68,8 +68,8 @@ class Tag extends \yii\db\ActiveRecord
                 $Tag->save();
             }
         }
-        if (!$intersect){
-            foreach ($intersect as $name){
+        if (!empty($tag)){
+            foreach ($tag as $name){
                 $tag[$name]->frequency += 1;
                 $tag[$name]->save();
             }
@@ -78,7 +78,7 @@ class Tag extends \yii\db\ActiveRecord
     /**
      * 删除标签
      */
-    public function removeTag($tags){
+    public static function removeTag($tags){
         if (empty($tags)) return ;
         $tag = Tag::find()->where(['in','name',$tags])->all();
 
@@ -94,6 +94,17 @@ class Tag extends \yii\db\ActiveRecord
             }
         }
 
+    }
+    /**
+     * 更新标签
+     */
+    public static function updateTag($oldTag,$newtTag){
+        if (!empty($oldTag)&&!empty($newtTag)){
+            $oldTagArray = self::string2array($oldTag);
+            $newtTagArray = self::string2array($newtTag);
+            self::addTag(array_values(array_diff($newtTagArray,$oldTagArray)));
+            self::removeTag(array_values(array_diff($oldTagArray,$newtTagArray)));
+        }
     }
 
 
