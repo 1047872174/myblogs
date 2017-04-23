@@ -45,65 +45,69 @@ class Tag extends \yii\db\ActiveRecord
         ];
     }
 
-    public function array2string($array){
+    public static function array2string($array){
         return implode(',',$array);
     }
-    public function string2array($string){
+    public static function string2array($string){
         return explode(',',$string);
     }
 
-    /**
-     * 新增标签
-     */
-    public static function addTag($tags){
-        if (empty($tags)) return ;
-        $tag = Tag::find()->where(['in','name',$tags])->all();
-        $different = array_diff($tags,$tag);//array_diff()计算数组的差集
-        //$intersect = array_intersect($tags,$tag);//array_intersect()计算数组的交集
-        if (!empty($different)){
-            foreach ($different as $name){
-                $Tag = new Tag();
-                $Tag->name = $name;
-                $Tag->frequency = 1;
-                $Tag->save();
+    public static function addTags($tags)
+    {
+        if(empty($tags)) return ;
+
+        foreach ($tags as $name)
+        {
+            $aTag = Tag::find()->where(['name'=>$name])->one();
+            $aTagCount = Tag::find()->where(['name'=>$name])->count();
+
+            if(!$aTagCount)
+            {
+                $tag = new Tag;
+                $tag->name = $name;
+                $tag->frequency = 1;
+                $tag->save();
             }
-        }
-        if (!empty($tag)){
-            foreach ($tag as $name){
-                $tag[$name]->frequency += 1;
-                $tag[$name]->save();
+            else
+            {
+                $aTag->frequency += 1;
+                $aTag->save();
             }
         }
     }
-    /**
-     * 删除标签
-     */
-    public static function removeTag($tags){
-        if (empty($tags)) return ;
-        $tag = Tag::find()->where(['in','name',$tags])->all();
 
-        if (!$tag){
-            foreach ($tag as $k=>$v){
-                if ($tag[$k]->frequency>1){
-                    $tag[$k]->frequency -= 1;
-                    $tag[$k]->save();
-                }else{
-                    $tag[$k]->delete();
+    public static function removeTags($tags)
+    {
+        if(empty($tags)) return ;
+
+        foreach($tags as $name)
+        {
+            $aTag = Tag::find()->where(['name'=>$name])->one();
+            $aTagCount = Tag::find()->where(['name'=>$name])->count();
+
+            if($aTagCount)
+            {
+                if($aTagCount && $aTag->frequency<=1)
+                {
+                    $aTag->delete();
                 }
-
+                else
+                {
+                    $aTag->frequency -= 1;
+                    $aTag->save();
+                }
             }
         }
-
     }
     /**
      * 更新标签
      */
     public static function updateTag($oldTag,$newtTag){
-        if (!empty($oldTag)&&!empty($newtTag)){
+        if (!empty($oldTag)||!empty($newtTag)){
             $oldTagArray = self::string2array($oldTag);
             $newtTagArray = self::string2array($newtTag);
-            self::addTag(array_values(array_diff($newtTagArray,$oldTagArray)));
-            self::removeTag(array_values(array_diff($oldTagArray,$newtTagArray)));
+            self::addTags(array_values(array_diff($newtTagArray,$oldTagArray)));
+            self::removeTags(array_values(array_diff($oldTagArray,$newtTagArray)));
         }
     }
 
