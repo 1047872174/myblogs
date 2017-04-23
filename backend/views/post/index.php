@@ -22,16 +22,26 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
+            //['class' => 'yii\grid\SerialColumn'],
             'id',
             'title',
-            'content:ntext',
+            //'author_id',
+            ['attribute'=>'author_id','value'=>'author.nickname'],
+            //'status',
+            ['attribute'=>'status', 'value'=>'status0.name',
+                'filter'=>\common\models\Poststatus::find()
+                    ->select(['name','id'])
+                    ->orderBy('position')
+                    ->indexBy('id')
+                    ->column(),
+            ],
+            //'content:ntext',
             'tags:ntext',
-            'status',
-            'create_time:datetime',
-            'update_time:datetime',
-            'author_id',
+            //'create_time:datetime',
+            //'update_time:datetime',
+            ['attribute'=>'update_time',
+            'format'=>['date','php:Y-m-d H:i:s']
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
