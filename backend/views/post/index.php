@@ -26,7 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             //'author_id',
-            ['attribute'=>'author_id','value'=>'author.nickname'],
+            ['attribute'=>'authorName','label'=>'作者','value'=>'author.nickname'],
             //'status',
             ['attribute'=>'status', 'value'=>'status0.name',
                 'filter'=>\common\models\Poststatus::find()
